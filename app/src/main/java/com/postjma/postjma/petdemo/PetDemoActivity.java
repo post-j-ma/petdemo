@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -34,6 +35,7 @@ public class PetDemoActivity extends AppCompatActivity {
      */
     private static final int UI_ANIMATION_DELAY = 300;
     private static final int UI_FEED_ANIMATION_DELAY = 1000;
+    private static final int UI_WASH_ANIMATION_DELAY = 1500;
     private final Handler mAnimateHandler = new Handler();
     private boolean mIsAlive;
     private View mContentView;
@@ -80,6 +82,43 @@ public class PetDemoActivity extends AppCompatActivity {
             mImageView.startAnimation(mTranslateAnimation);
         }
     };
+
+    private final Runnable mWashPart1Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            washAnimate(3);
+            mAnimateHandler.postDelayed(mWashPart2Runnable, UI_WASH_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mWashPart2Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            washAnimate(2);
+            mAnimateHandler.postDelayed(mWashPart3Runnable, UI_WASH_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mWashPart3Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            washAnimate(1);
+            mAnimateHandler.postDelayed(mWashPart4Runnable, UI_WASH_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mWashPart4Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            washAnimate(0);
+
+            mControlsView.setVisibility(View.VISIBLE);
+            mImageView.setImageDrawable(mDraw);
+            mImageView.startAnimation(mTranslateAnimation);
+        }
+    };
+
 
     private void initAnimation()
     {
@@ -129,6 +168,54 @@ public class PetDemoActivity extends AppCompatActivity {
         playFeedSound();
     }
 
+    private void drawWashLine(float yPos, Canvas canvas, Paint paint)
+    {
+        float yPosEnd = yPos + 5.0f;
+        canvas.drawArc(new RectF(5.0f, yPos, 10.0f, yPosEnd), 180.0f, 180.0f, false, paint);
+        canvas.drawArc(new RectF(10.0f, yPos, 15.0f, yPosEnd), 180.0f, -180.0f, false, paint);
+        canvas.drawArc(new RectF(15.0f, yPos, 20.0f, yPosEnd), 180.0f, 180.0f, false, paint);
+        canvas.drawArc(new RectF(20.0f, yPos, 25.0f, yPosEnd), 180.0f, -180.0f, false, paint);
+        canvas.drawArc(new RectF(25.0f, yPos, 30.0f, yPosEnd), 180.0f, 180.0f, false, paint);
+        canvas.drawArc(new RectF(30.0f, yPos, 35.0f, yPosEnd), 180.0f, -180.0f, false, paint);
+        canvas.drawArc(new RectF(35.0f, yPos, 40.0f, yPosEnd), 180.0f, 180.0f, false, paint);
+        canvas.drawArc(new RectF(40.0f, yPos, 45.0f, yPosEnd), 180.0f, -180.0f, false, paint);
+    }
+
+    private void washAnimate(int stages)
+    {
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.BLUE);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), sym_def_app_icon);
+        Bitmap canvasBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(canvasBitmap);
+
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        switch (stages)
+        {
+            case 4:
+                drawWashLine(5.0f, canvas, paint);
+                drawWashLine(10.0f, canvas, paint);
+                drawWashLine(15.0f, canvas, paint);
+                break;
+            case 3:
+                drawWashLine(20.0f, canvas, paint);
+                drawWashLine(25.0f, canvas, paint);
+                drawWashLine(30.0f, canvas, paint);
+                break;
+            case 2:
+                drawWashLine(35.0f, canvas, paint);
+                drawWashLine(40.0f, canvas, paint);
+                break;
+            case 1:
+                drawWashLine(40.0f, canvas, paint);
+                break;
+            default:
+                break;
+        }
+        mImageView.setImageDrawable(new BitmapDrawable(getResources(), canvasBitmap));
+    }
+
     private void deadAnimate()
     {
         Paint paint = new Paint();
@@ -161,6 +248,11 @@ public class PetDemoActivity extends AppCompatActivity {
 
     private void washHandler()
     {
+        mTranslateAnimation.cancel();
+        mTranslateAnimation.reset();
+
+        washAnimate(4);
+        mAnimateHandler.postDelayed(mWashPart1Runnable, UI_WASH_ANIMATION_DELAY);
     }
 
     private void statHandler()
