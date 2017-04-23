@@ -1,21 +1,19 @@
 package com.postjma.postjma.petdemo;
 
+
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.MotionEvent;
-import android.view.SoundEffectConstants;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
@@ -35,7 +33,8 @@ public class PetDemoActivity extends AppCompatActivity {
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
-    private final Handler mHideHandler = new Handler();
+    private static final int UI_FEED_ANIMATION_DELAY = 1000;
+    private final Handler mAnimateHandler = new Handler();
     private View mContentView;
     private View mControlsView;
     private ImageView mImageView;
@@ -45,6 +44,41 @@ public class PetDemoActivity extends AppCompatActivity {
     private Button mWashButton;
     private Button mStatButton;
     private TranslateAnimation mTranslateAnimation;
+
+    private final Runnable mFeedPart1Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            feedAnimate(3);
+            mAnimateHandler.postDelayed(mFeedPart2Runnable, UI_FEED_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mFeedPart2Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            feedAnimate(2);
+            mAnimateHandler.postDelayed(mFeedPart3Runnable, UI_FEED_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mFeedPart3Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            feedAnimate(1);
+            mAnimateHandler.postDelayed(mFeedPart4Runnable, UI_FEED_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mFeedPart4Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            feedAnimate(0);
+
+            mControlsView.setVisibility(View.VISIBLE);
+            mImageView.startAnimation(mTranslateAnimation);
+        }
+    };
 
     private void initAnimation()
     {
@@ -58,7 +92,62 @@ public class PetDemoActivity extends AppCompatActivity {
         mImageView.startAnimation(mTranslateAnimation);
     }
 
+    private void sleep(int millisec) {
+        try {
+            Thread.sleep(millisec);
+        }catch (InterruptedException ie) {
+            // ignore
+        }
+    }
+
+    private void playFeedSound()
+    {
+        ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
+        tg.startTone(ToneGenerator.TONE_PROP_BEEP, 100);
+    }
+
+    private void feedAnimate(int stages)
+    {
+        Paint paint = new Paint();
+        paint.setColor(Color.LTGRAY);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), sym_def_app_icon);
+        Bitmap canvasBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(canvasBitmap);
+
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        if (stages > 0)
+        canvas.drawRect(40.0f, 5.0f, 45.0f, 10.0f, paint);
+        if (stages > 1)
+        canvas.drawRect(45.0f, 5.0f, 50.0f, 10.0f, paint);
+        if (stages > 2)
+        canvas.drawRect(40.0f, 10.0f, 45.0f, 15.0f, paint);
+        if (stages > 3)
+        canvas.drawRect(45.0f, 10.0f, 50.0f, 15.0f, paint);
+        mImageView.setImageDrawable(new BitmapDrawable(getResources(), canvasBitmap));
+
+        playFeedSound();
+    }
+
     private void feedHandler()
+    {
+        mTranslateAnimation.cancel();
+        mTranslateAnimation.reset();
+
+        mControlsView.setVisibility(View.GONE);
+
+        feedAnimate(4);
+        mAnimateHandler.postDelayed(mFeedPart1Runnable, UI_FEED_ANIMATION_DELAY);
+    }
+
+    private void pettingHandler()
+    {
+    }
+
+    private void washHandler()
+    {
+    }
+
+    private void statHandler()
     {
     }
 
@@ -89,9 +178,7 @@ public class PetDemoActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-                //mContentView.playSoundEffect(SoundEffectConstants.NAVIGATION_DOWN);
-                ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-                tg.startTone(ToneGenerator.TONE_PROP_BEEP, 100);
+                pettingHandler();
             }
         });
 
@@ -100,9 +187,7 @@ public class PetDemoActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-                //mContentView.playSoundEffect(SoundEffectConstants.NAVIGATION_DOWN);
-                ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-                tg.startTone(ToneGenerator.TONE_PROP_BEEP, 100);
+                washHandler();
             }
         });
 
@@ -111,34 +196,8 @@ public class PetDemoActivity extends AppCompatActivity {
             @Override
             public void onClick(View view)
             {
-                //mContentView.playSoundEffect(SoundEffectConstants.NAVIGATION_DOWN);
-                ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-                tg.startTone(ToneGenerator.TONE_PROP_BEEP, 100);
+                statHandler();
             }
         });
-    }
-
-    private void hide() {
-        // Hide UI first
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        mControlsView.setVisibility(View.GONE);
-
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        //mHideHandler.removeCallbacks(mShowPart2Runnable);
-        //mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
-    }
-
-    @SuppressLint("InlinedApi")
-    private void show() {
-        // Show the system bar
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-
-        // Schedule a runnable to display UI elements after a delay
-        //mHideHandler.removeCallbacks(mHidePart2Runnable);
-        //mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
 }
