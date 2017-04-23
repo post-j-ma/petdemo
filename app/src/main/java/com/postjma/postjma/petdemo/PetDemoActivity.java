@@ -35,6 +35,7 @@ public class PetDemoActivity extends AppCompatActivity {
     private static final int UI_ANIMATION_DELAY = 300;
     private static final int UI_FEED_ANIMATION_DELAY = 1000;
     private final Handler mAnimateHandler = new Handler();
+    private boolean mIsAlive;
     private View mContentView;
     private View mControlsView;
     private ImageView mImageView;
@@ -128,6 +129,21 @@ public class PetDemoActivity extends AppCompatActivity {
         playFeedSound();
     }
 
+    private void deadAnimate()
+    {
+        Paint paint = new Paint();
+        paint.setColor(Color.RED);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), sym_def_app_icon);
+        Bitmap canvasBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(canvasBitmap);
+        canvas.drawColor(Color.BLACK);
+
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        canvas.drawText("x", 14.48f, 14.0f, paint);
+        canvas.drawText("x", 28.48f, 14.0f, paint);
+        mImageView.setImageDrawable(new BitmapDrawable(getResources(), canvasBitmap));
+    }
+
     private void feedHandler()
     {
         mTranslateAnimation.cancel();
@@ -149,6 +165,34 @@ public class PetDemoActivity extends AppCompatActivity {
 
     private void statHandler()
     {
+    }
+
+    private void toggleAlive()
+    {
+        if (mIsAlive) {
+            mTranslateAnimation.cancel();
+            mTranslateAnimation.reset();
+
+            mStatButton.setText("RESET");
+            mFeedButton.setVisibility(View.GONE);
+            mPetButton.setVisibility(View.GONE);
+            mWashButton.setVisibility(View.GONE);
+
+            mIsAlive = false;
+
+            deadAnimate();
+        }
+        else {
+            mStatButton.setText("STAT");
+            mFeedButton.setVisibility(View.VISIBLE);
+            mPetButton.setVisibility(View.VISIBLE);
+            mWashButton.setVisibility(View.VISIBLE);
+
+            mIsAlive = true;
+
+            mImageView.setImageDrawable(mDraw);
+            mImageView.startAnimation(mTranslateAnimation);
+        }
     }
 
     @Override
@@ -190,6 +234,8 @@ public class PetDemoActivity extends AppCompatActivity {
                 washHandler();
             }
         });
+
+        mIsAlive = true;
 
         mStatButton = (Button)findViewById(R.id.statbutton);
         mStatButton.setOnClickListener(new View.OnClickListener() {
