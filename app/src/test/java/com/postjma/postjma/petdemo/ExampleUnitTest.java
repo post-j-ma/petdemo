@@ -1,4 +1,4 @@
-package com.example.jbrown105.petdemo;
+package com.postjma.postjma.petdemo;
 
 import org.junit.Test;
 
