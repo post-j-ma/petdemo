@@ -36,6 +36,7 @@ public class PetDemoActivity extends AppCompatActivity {
     private static final int UI_ANIMATION_DELAY = 300;
     private static final int UI_FEED_ANIMATION_DELAY = 1000;
     private static final int UI_WASH_ANIMATION_DELAY = 1500;
+    private static final int UI_JOY_ANIMATION_DELAY = 500;
     private final Handler mAnimateHandler = new Handler();
     private boolean mIsAlive;
     private View mContentView;
@@ -43,7 +44,7 @@ public class PetDemoActivity extends AppCompatActivity {
     private ImageView mImageView;
     private Drawable mDraw;
     private Button mFeedButton;
-    private Button mPetButton;
+    private Button mJoyButton;
     private Button mWashButton;
     private Button mStatButton;
     private TranslateAnimation mTranslateAnimation;
@@ -119,6 +120,64 @@ public class PetDemoActivity extends AppCompatActivity {
         }
     };
 
+    private final Runnable mJoyPart1Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            joyAnimate(2);
+            mAnimateHandler.postDelayed(mJoyPart2Runnable, UI_JOY_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mJoyPart2Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            joyAnimate(1);
+            mAnimateHandler.postDelayed(mJoyPart3Runnable, UI_JOY_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mJoyPart3Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            joyAnimate(0);
+            mAnimateHandler.postDelayed(mJoyPart4Runnable, UI_JOY_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mJoyPart4Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            joyAnimate(3);
+            mAnimateHandler.postDelayed(mJoyPart5Runnable, UI_JOY_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mJoyPart5Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            joyAnimate(2);
+            mAnimateHandler.postDelayed(mJoyPart6Runnable, UI_JOY_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mJoyPart6Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            joyAnimate(1);
+            mAnimateHandler.postDelayed(mJoyPart7Runnable, UI_JOY_ANIMATION_DELAY);
+        }
+    };
+    private final Runnable mJoyPart7Runnable = new Runnable() {
+        @SuppressLint("InlinedApi")
+        @Override
+        public void run() {
+            joyAnimate(0);
+
+            mControlsView.setVisibility(View.VISIBLE);
+            mImageView.startAnimation(mTranslateAnimation);
+        }
+    };
 
     private void initAnimation()
     {
@@ -144,6 +203,12 @@ public class PetDemoActivity extends AppCompatActivity {
     {
         ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
         tg.startTone(ToneGenerator.TONE_PROP_BEEP, 100);
+    }
+
+    private void playJoySound()
+    {
+        ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+        tg.startTone(ToneGenerator.TONE_DTMF_0, 100);
     }
 
     private void feedAnimate(int stages)
@@ -182,7 +247,7 @@ public class PetDemoActivity extends AppCompatActivity {
         canvas.drawArc(new RectF(40.0f, yPos, 45.0f, yPosEnd), 180.0f, -180.0f, false, paint);
     }
 
-    private void pettingAnimate(int stages)
+    private void joyAnimate(int stages)
     {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
@@ -224,6 +289,9 @@ public class PetDemoActivity extends AppCompatActivity {
                 break;
         }
         mImageView.setImageDrawable(new BitmapDrawable(getResources(), canvasBitmap));
+
+        if (stages > 0)
+        playJoySound();
     }
 
     private void washAnimate(int stages)
@@ -287,14 +355,15 @@ public class PetDemoActivity extends AppCompatActivity {
         mAnimateHandler.postDelayed(mFeedPart1Runnable, UI_FEED_ANIMATION_DELAY);
     }
 
-    private void pettingHandler()
+    private void joyHandler()
     {
         mTranslateAnimation.cancel();
         mTranslateAnimation.reset();
 
         mControlsView.setVisibility(View.GONE);
 
-        pettingAnimate(1);
+        joyAnimate(3);
+        mAnimateHandler.postDelayed(mJoyPart1Runnable, UI_JOY_ANIMATION_DELAY);
     }
 
     private void washHandler()
@@ -318,7 +387,7 @@ public class PetDemoActivity extends AppCompatActivity {
 
             mStatButton.setText("RESET");
             mFeedButton.setVisibility(View.GONE);
-            mPetButton.setVisibility(View.GONE);
+            mJoyButton.setVisibility(View.GONE);
             mWashButton.setVisibility(View.GONE);
 
             mIsAlive = false;
@@ -328,7 +397,7 @@ public class PetDemoActivity extends AppCompatActivity {
         else {
             mStatButton.setText("STAT");
             mFeedButton.setVisibility(View.VISIBLE);
-            mPetButton.setVisibility(View.VISIBLE);
+            mJoyButton.setVisibility(View.VISIBLE);
             mWashButton.setVisibility(View.VISIBLE);
 
             mIsAlive = true;
@@ -360,12 +429,12 @@ public class PetDemoActivity extends AppCompatActivity {
             }
         });
 
-        mPetButton = (Button)findViewById(R.id.petbutton);
-        mPetButton.setOnClickListener(new View.OnClickListener() {
+        mJoyButton = (Button)findViewById(R.id.petbutton);
+        mJoyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
-                pettingHandler();
+                joyHandler();
             }
         });
 
