@@ -149,6 +149,7 @@ public class PetDemoActivity extends AppCompatActivity {
     private void feedAnimate(int stages)
     {
         Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.LTGRAY);
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), sym_def_app_icon);
         Bitmap canvasBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -179,6 +180,50 @@ public class PetDemoActivity extends AppCompatActivity {
         canvas.drawArc(new RectF(30.0f, yPos, 35.0f, yPosEnd), 180.0f, -180.0f, false, paint);
         canvas.drawArc(new RectF(35.0f, yPos, 40.0f, yPosEnd), 180.0f, 180.0f, false, paint);
         canvas.drawArc(new RectF(40.0f, yPos, 45.0f, yPosEnd), 180.0f, -180.0f, false, paint);
+    }
+
+    private void pettingAnimate(int stages)
+    {
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.YELLOW);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), sym_def_app_icon);
+        Bitmap canvasBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(canvasBitmap);
+
+        canvas.drawBitmap(bitmap, 0, 0, null);
+        switch (stages)
+        {
+            case 3:
+                canvas.drawOval(new RectF(40.0f, 10.0f, 45.0f, 15.0f), paint);
+                break;
+            case 2:
+                //canvas.drawOval(new RectF(35.0f, 5.0f, 45.0f, 15.0f), paint);
+                canvas.drawOval(new RectF(37.5f, 7.5f, 45.0f, 15.0f), paint);
+                break;
+            case 1:
+                //canvas.drawOval(new RectF(30.0f, 5.0f, 45.0f, 20.0f), paint);
+                canvas.drawOval(new RectF(35.0f, 5.0f, 45.0f, 15.0f), paint);
+
+                //canvas.drawLine(37.5f, 0.0f, 37.5f, 5.0f, paint); // North
+                //canvas.drawLine(37.5f, 20.0f, 37.5f, 25.0f, paint); // South
+                //canvas.drawLine(25.0f, 12.5f, 30.0f, 12.5f, paint); // East
+                //canvas.drawLine(45.0f, 12.5f, 50.0f, 12.5f, paint); // West
+
+                canvas.drawPoint(40.0f, 3.0f, paint); // North
+                canvas.drawPoint(40.0f, 17.0f, paint); // South
+                canvas.drawPoint(33.0f, 10.0f, paint); // East
+                canvas.drawPoint(47.5f, 10.0f, paint); // West
+
+                canvas.drawPoint(34.5f, 6.5f, paint); // Northeast
+                canvas.drawPoint(45.5f, 6.5f, paint); // Northwest
+                canvas.drawPoint(34.5f, 13.5f, paint); // Southeast
+                canvas.drawPoint(45.5f, 13.5f, paint); // Southwest
+                break;
+            default:
+                break;
+        }
+        mImageView.setImageDrawable(new BitmapDrawable(getResources(), canvasBitmap));
     }
 
     private void washAnimate(int stages)
@@ -244,6 +289,12 @@ public class PetDemoActivity extends AppCompatActivity {
 
     private void pettingHandler()
     {
+        mTranslateAnimation.cancel();
+        mTranslateAnimation.reset();
+
+        mControlsView.setVisibility(View.GONE);
+
+        pettingAnimate(1);
     }
 
     private void washHandler()
