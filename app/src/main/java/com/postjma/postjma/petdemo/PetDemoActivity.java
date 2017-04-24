@@ -263,17 +263,10 @@ public class PetDemoActivity extends AppCompatActivity {
                 canvas.drawOval(new RectF(40.0f, 10.0f, 45.0f, 15.0f), paint);
                 break;
             case 2:
-                //canvas.drawOval(new RectF(35.0f, 5.0f, 45.0f, 15.0f), paint);
                 canvas.drawOval(new RectF(37.5f, 7.5f, 45.0f, 15.0f), paint);
                 break;
             case 1:
-                //canvas.drawOval(new RectF(30.0f, 5.0f, 45.0f, 20.0f), paint);
                 canvas.drawOval(new RectF(35.0f, 5.0f, 45.0f, 15.0f), paint);
-
-                //canvas.drawLine(37.5f, 0.0f, 37.5f, 5.0f, paint); // North
-                //canvas.drawLine(37.5f, 20.0f, 37.5f, 25.0f, paint); // South
-                //canvas.drawLine(25.0f, 12.5f, 30.0f, 12.5f, paint); // East
-                //canvas.drawLine(45.0f, 12.5f, 50.0f, 12.5f, paint); // West
 
                 canvas.drawPoint(40.0f, 3.0f, paint); // North
                 canvas.drawPoint(40.0f, 17.0f, paint); // South
